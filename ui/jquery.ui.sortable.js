@@ -738,30 +738,34 @@ $.widget("ui.sortable", $.ui.mouse, {
 		if(this.containers.length === 1) {
 			this.containers[innermostIndex]._trigger("over", event, this._uiHash(this));
 			this.containers[innermostIndex].containerCache.over = 1;
-		} else if(this.currentContainer != this.containers[innermostIndex]) {
+		} else if(this.currentContainer != this.containers[innermostIndex]) { 
 
-			//When entering a new container, we will find the item with the least distance and append our item near it
-			var dist = 10000; var itemWithLeastDistance = null; var base = this.positionAbs[this.containers[innermostIndex].floating ? 'left' : 'top'];
-			for (var j = this.items.length - 1; j >= 0; j--) {
-				if(!$.contains(this.containers[innermostIndex].element[0], this.items[j].item[0])) continue;
-				var cur = this.items[j][this.containers[innermostIndex].floating ? 'left' : 'top'];
-				if(Math.abs(cur - base) < dist) {
+			//When entering a new container, we will find the item with the least distance and append our item near it 
+			var dist = 10000; var itemWithLeastDistance = null; var base = this.positionAbs[this.containers[innermostIndex].floating ? 'left' : 'top']; 
+			for (var j = this.items.length - 1; j >= 0; j--) { 
+				// never consider the same item
+				if($.data(this.currentItem[0]) === $.data(this.items[j].item[0])) continue;
+				if(!$.ui.contains(this.containers[innermostIndex].element[0], this.items[j].item[0])) continue; 
+				if(itemWithLeastDistance && $.ui.contains(itemWithLeastDistance.item[0], this.items[j].item[0])) continue; 
+				var cur = this.items[j][this.containers[innermostIndex].floating ? 'left' : 'top']; 
+				if(itemWithLeastDistance && $.ui.contains(this.items[j].item[0], itemWithLeastDistance.item[0]) || Math.abs(cur - base) < dist) { 
 					dist = Math.abs(cur - base); itemWithLeastDistance = this.items[j];
-				}
-			}
+					this.direction = (cur - base > 0) ? 'down' : 'up'; 
+				} 
+			} 
 
-			if(!itemWithLeastDistance && !this.options.dropOnEmpty) //Check if dropOnEmpty is enabled
-				return;
+			if(!itemWithLeastDistance && !this.options.dropOnEmpty) //Check if dropOnEmpty is enabled 
+				return; 
 
-			this.currentContainer = this.containers[innermostIndex];
-			itemWithLeastDistance ? this._rearrange(event, itemWithLeastDistance, null, true) : this._rearrange(event, null, this.containers[innermostIndex].element, true);
-			this._trigger("change", event, this._uiHash());
-			this.containers[innermostIndex]._trigger("change", event, this._uiHash(this));
+			this.currentContainer = this.containers[innermostIndex]; 
+			itemWithLeastDistance ? this._rearrange(event, itemWithLeastDistance, null, true) : this._rearrange(event, null, this.containers[innermostIndex].element, true); 
+			this._trigger("change", event, this._uiHash()); 
+			this.containers[innermostIndex]._trigger("change", event, this._uiHash(this)); 
 
-			//Update the placeholder
-			this.options.placeholder.update(this.currentContainer, this.placeholder);
-
-			this.containers[innermostIndex]._trigger("over", event, this._uiHash(this));
+			//Update the placeholder 
+			this.options.placeholder.update(this.currentContainer, this.placeholder); 
+		
+			this.containers[innermostIndex]._trigger("over", event, this._uiHash(this)); 
 			this.containers[innermostIndex].containerCache.over = 1;
 		}
 
