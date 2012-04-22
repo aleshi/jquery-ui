@@ -744,10 +744,14 @@ $.widget("ui.sortable", $.ui.mouse, {
 			//When entering a new container, we will find the item with the least distance and append our item near it 
 			var dist = 10000; var itemWithLeastDistance = null; var base = this.positionAbs[this.containers[innermostIndex].floating ? 'left' : 'top']; 
 			for (var j = this.items.length - 1; j >= 0; j--) { 
+				// never consider the same item
+				if($.data(this.currentItem[0]) === $.data(this.items[j].item[0])) continue;
 				if(!$.ui.contains(this.containers[innermostIndex].element[0], this.items[j].item[0])) continue; 
+				if(itemWithLeastDistance && $.ui.contains(itemWithLeastDistance.item[0], this.items[j].item[0])) continue; 
 				var cur = this.items[j][this.containers[innermostIndex].floating ? 'left' : 'top']; 
-				if(Math.abs(cur - base) < dist) { 
-					dist = Math.abs(cur - base); itemWithLeastDistance = this.items[j]; 
+				if(itemWithLeastDistance && $.ui.contains(this.items[j].item[0], itemWithLeastDistance.item[0]) || Math.abs(cur - base) < dist) { 
+					dist = Math.abs(cur - base); itemWithLeastDistance = this.items[j];
+					this.direction = (cur - base > 0) ? 'down' : 'up'; 
 				} 
 			} 
 
